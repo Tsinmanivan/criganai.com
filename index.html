@@ -793,24 +793,24 @@
       </div>
 
       <div>
-        <div class="contact-form">
+       <form class="contact-form" id="contactForm">
           <div class="form-row">
             <div class="form-group">
               <label>First Name</label>
-              <input type="text" placeholder="John"/>
+              <input type="text" name="firstName" placeholder="John"/>
             </div>
             <div class="form-group">
               <label>Last Name</label>
-              <input type="text" placeholder="Smith"/>
+              <input type="text" name="lastName" placeholder="Smith"/>
             </div>
           </div>
           <div class="form-group">
             <label>Business Name</label>
-            <input type="text" placeholder="Your Business Ltd"/>
+            <input type="text" name="businessname" placeholder="Your Business Ltd"/>
           </div>
           <div class="form-group">
             <label>Email Address</label>
-            <input type="email" placeholder="john@yourbusiness.com"/>
+            <input type="email" name="email" placeholder="john@yourbusiness.com"/>
           </div>
           <div class="form-group">
             <label>I'm interested in...</label>
@@ -827,7 +827,7 @@
             <label>Tell us about your business</label>
             <textarea rows="4" placeholder="A brief description of your business and what you're hoping to automate..."></textarea>
           </div>
-          <button class="form-submit" onclick="submitForm()">Send Message & Book Call →</button>
+          <button type="submit" class="form-submit" id="formSubmitBtn"> Send Message & Book Call →</button>
         </div>
       </div>
     </div>
@@ -854,11 +854,31 @@
     observeFadeIns();
   }
 
-  function submitForm() {
-    const toast = document.getElementById('toast');
-    toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 4000);
+  document.getElementById('contactForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const btn = document.getElementById('formSubmitBtn');
+  const toast = document.getElementById('toast');
+  btn.textContent = 'Sending...';
+  btn.disabled = true;
+  try {
+    const res = await fetch('https://formspree.io/f/xojkgbzq', {
+      method: 'POST',
+      body: new FormData(this),
+      headers: { 'Accept': 'application/json' }
+    });
+    if (res.ok) {
+      this.reset();
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 5000);
+      btn.textContent = 'Message Sent ✓';
+      setTimeout(() => { btn.textContent = 'Send Message & Book Call →'; btn.disabled = false; }, 5000);
+    } else { throw new Error(); }
+  } catch {
+    alert('Something went wrong. Please try again.');
+    btn.textContent = 'Send Message & Book Call →';
+    btn.disabled = false;
   }
+});
 
   function observeFadeIns() {
     const obs = new IntersectionObserver((entries) => {
